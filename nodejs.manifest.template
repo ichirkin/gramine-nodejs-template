@@ -1,0 +1,36 @@
+# Node.js manifest file example
+
+loader.entrypoint = "file:{{ gramine.libos }}"
+libos.entrypoint = "{{ nodejs_dir }}/node"
+
+loader.log_level = "{{ log_level }}"
+
+loader.env.LD_LIBRARY_PATH = "/lib:{{ arch_libdir }}:/usr/{{ arch_libdir }}"
+
+loader.insecure__use_cmdline_argv = true
+loader.insecure__use_host_env = true
+
+# Node.js requires eventfd2() emulation otherwise fails on `(uv_loop_init(&tracing_loop_)) == (0)'
+sys.insecure__allow_eventfd = true
+
+fs.mounts = [
+  { uri = "file:{{ gramine.runtimedir() }}", path = "/lib" },
+  { uri = "file:{{ arch_libdir }}", path = "{{ arch_libdir }}" },
+  { uri = "file:/usr{{ arch_libdir }}", path = "/usr{{ arch_libdir }}" },
+  { uri = "file:{{ nodejs_dir }}/node", path = "{{ nodejs_dir }}/node" },
+  { uri = "file:{{ app_dir }}", path = "{{ app_dir }}" },
+]
+
+sgx.enclave_size = "2G"
+sgx.nonpie_binary = true
+sgx.max_threads = 32
+sgx.edmm_enable = {{ 'true' if env.get('EDMM', '0') == '1' else 'false' }}
+
+sgx.trusted_files = [
+  "file:{{ gramine.libos }}",
+  "file:{{ nodejs_dir }}/node",
+  "file:{{ gramine.runtimedir() }}/",
+  "file:{{ arch_libdir }}/",
+  "file:/usr{{ arch_libdir }}/",
+  "file:{{ app_dir }}/",
+]

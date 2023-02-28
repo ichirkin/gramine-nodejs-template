@@ -1,0 +1,7 @@
+dist
+node_modules
+nodejs.manifest
+nodejs.manifest.sgx
+nodejs.sig
+enclave-key.pem
+gpg.key
